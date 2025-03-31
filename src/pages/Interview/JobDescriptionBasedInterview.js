@@ -14,9 +14,9 @@ const JobDescriptionBasedInterview = () => {
   const cameraStreamRef = useRef(null);
   const videoRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const avatarVideoRef = useRef(null);
 
   // State declarations
-  // Initial cameraActive is set to false so the camera is off initially.
   const [cameraError, setCameraError] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [stage, setStage] = useState("chooseAvatar");
@@ -28,8 +28,7 @@ const JobDescriptionBasedInterview = () => {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
   const [isListening, setIsListening] = useState(false);
-  const avatarVideoRef = useRef(null);
-
+  const [tabSwitchWarning, setTabSwitchWarning] = useState(false); // New state for tab switch warning
 
   const handleStartSpeechRecognition = () => {
     if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
@@ -38,111 +37,96 @@ const JobDescriptionBasedInterview = () => {
     }
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.continuous = false; // Stop automatically after speaking
-    recognition.interimResults = false; // Only take final results
-    recognition.lang = "en-US"; // Set language to English
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = "en-US";
     recognition.onstart = () => {
       console.log("Speech recognition started...");
-      setIsListening(true);  // ✅ Set mic ON
+      setIsListening(true);
     };
     recognition.onspeechend = () => {
       console.log("Speech recognition ended...");
       recognition.stop();
-      setIsListening(false); // ✅ Set mic OFF
+      setIsListening(false);
     };
     recognition.onresult = (event) => {
       const speechToText = event.results[0][0].transcript;
       console.log("Recognized Speech:", speechToText);
-      setUserInput((prev) => prev + (prev ? " " : "") + speechToText); // Append text to user input
+      setUserInput((prev) => prev + (prev ? " " : "") + speechToText);
     };
     recognition.onerror = (event) => {
       console.error("Speech recognition error:", event.error);
       alert("Speech recognition error. Please try again.");
-      setIsListening(false); // ✅ Set mic OFF in case of error
+      setIsListening(false);
     };
     recognition.start();
   };
 
+  const speakText = (text, selectedAvatarIndex) => {
+    if ("speechSynthesis" in window) {
+      const synth = window.speechSynthesis;
+      let voices = synth.getVoices();
 
-const speakText = (text, selectedAvatarIndex) => {
-  if ("speechSynthesis" in window) {
-    const synth = window.speechSynthesis;
-    let voices = synth.getVoices();
+      if (voices.length === 0) {
+        synth.onvoiceschanged = () => {
+          voices = synth.getVoices();
+          speakText(text, selectedAvatarIndex);
+        };
+        return;
+      }
 
-    if (voices.length === 0) {
-      synth.onvoiceschanged = () => {
-        voices = synth.getVoices();
-        speakText(text, selectedAvatarIndex);
+      const chosenAvatar = avatars[selectedAvatarIndex];
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.volume = 1;
+
+      const selectedVoice = voices.find(v => v.name.includes(chosenAvatar.voiceName)) || voices[0];
+      if (selectedVoice) {
+        utterance.voice = selectedVoice;
+      }
+
+      utterance.onstart = () => {
+        if (avatarVideoRef.current) {
+          if (!avatarVideoRef.current.src.includes(chosenAvatar.video)) {
+            avatarVideoRef.current.src = chosenAvatar.video;
+            avatarVideoRef.current.load();
+          }
+          if (avatarVideoRef.current.paused || avatarVideoRef.current.ended) {
+            avatarVideoRef.current.play();
+          }
+        }
       };
-      return;
-    }
 
-    const chosenAvatar = avatars[selectedAvatarIndex];
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.volume = 1;
-
-    // Assign the correct voice for each avatar
-    const selectedVoice = voices.find(v => v.name.includes(chosenAvatar.voiceName)) || voices[0];
-    if (selectedVoice) {
-      utterance.voice = selectedVoice;
-    }
-
-    // **MODIFICATION: Prevent video restart**
-    utterance.onstart = () => {
-      if (avatarVideoRef.current) {
-        if (!avatarVideoRef.current.src.includes(chosenAvatar.video)) {
-          avatarVideoRef.current.src = chosenAvatar.video; // Set the video source only once
-          avatarVideoRef.current.load(); // Ensure the video is loaded properly
+      utterance.onend = () => {
+        if (avatarVideoRef.current) {
+          avatarVideoRef.current.pause();
         }
+      };
 
-        if (avatarVideoRef.current.paused || avatarVideoRef.current.ended) {
-          avatarVideoRef.current.play(); // Play only if paused or ended
-        }
-      }
-    };
+      synth.speak(utterance);
+    } else {
+      console.error("Speech Synthesis not supported in this browser.");
+    }
+  };
 
-    // Pause video when speech ends
-    utterance.onend = () => {
-      if (avatarVideoRef.current) {
-        avatarVideoRef.current.pause();
-      }
-    };
-
-    synth.speak(utterance);
-  } else {
-    console.error("Speech Synthesis not supported in this browser.");
-  }
-};
-
-  
-  
-  
   const avatars = [
     { id: 1, name: "Anandi", img: "https://i.postimg.cc/T16ypJY2/Anandi.jpg", 
       description: "Beginner level", video: "/videos/anandi.mp4", voiceName: "Google UK English Female" },
-  
     { id: 2, name: "Ada", img: "https://i.postimg.cc/7hfgx65q/Ada.jpg", 
       description: "Moderate level", video: "/videos/ada.mp4", voiceName: "Google UK English Female" },
-  
     { id: 3, name: "Chandragupt", img: "https://i.postimg.cc/s2G1mNMD/Chandragupt.jpg", 
       description: "Intermediate level", video: "/videos/chandragupt.mp4", voiceName: "Google UK English Male" },
-  
     { id: 4, name: "Alexander", img: "https://i.postimg.cc/QxNtwtFz/Hyp.jpg", 
       description: "Advanced level", video: "/videos/hyp.mp4", voiceName: "Google US English Male" },
-  
     { id: 5, name: "Tesla", img: "https://i.postimg.cc/qqy8F7gq/Alex.jpg", 
       description: "Expert level", video: "/videos/tesla.mp4", voiceName: "Google UK English Male" },
   ];
-  
 
-  // Scroll to bottom when messages update
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
-  // Helper function to stop camera stream
   const stopCameraStream = () => {
     if (cameraStreamRef.current) {
       cameraStreamRef.current.getVideoTracks().forEach((track) => track.stop());
@@ -155,7 +139,6 @@ const speakText = (text, selectedAvatarIndex) => {
     }
   };
 
-  // Function to start camera stream
   const startCameraStream = () => {
     if (videoRef.current) {
       navigator.mediaDevices
@@ -174,8 +157,6 @@ const speakText = (text, selectedAvatarIndex) => {
     }
   };
 
-  // Request camera access when chat stage is active and video element is rendered,
-  // but only if cameraActive is true.
   useEffect(() => {
     if (stage === "chat" && selectedAvatarIndex !== null && videoRef.current && cameraActive) {
       console.log("Requesting camera access with facingMode 'user'...");
@@ -183,38 +164,41 @@ const speakText = (text, selectedAvatarIndex) => {
     }
   }, [stage, selectedAvatarIndex, cameraActive]);
 
-  // Use a ref to always hold the latest cameraActive value
   const cameraActiveRef = useRef(cameraActive);
   useEffect(() => {
     cameraActiveRef.current = cameraActive;
   }, [cameraActive]);
 
-  // Handle visibility change – reinitialize camera only if it was active.
+  // Modified visibility change handler to include tab switch warning
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopCameraStream();
-      } else {
-        if (
-          stage === "chat" &&
-          selectedAvatarIndex !== null &&
-          cameraActiveRef.current &&
-          videoRef.current
-        ) {
-          navigator.mediaDevices
-            .getUserMedia({ video: { facingMode: "user" } })
-            .then((stream) => {
-              cameraStreamRef.current = stream;
-              videoRef.current.srcObject = stream;
-              setCameraError(null);
-              alert("Please do not switch window during the interview!");
-            })
-            .catch((err) => {
-              console.error("Error accessing camera: ", err);
-              setCameraError(
-                "Unable to access the camera. Please check your device settings or visit webcamtests.com."
-              );
-            });
+      if (stage === "chat") { // Only trigger during chat stage
+        if (document.hidden) {
+          stopCameraStream();
+          setTabSwitchWarning(true); // Set warning when tab is switched
+        } else {
+          if (
+            selectedAvatarIndex !== null &&
+            cameraActiveRef.current &&
+            videoRef.current
+          ) {
+            navigator.mediaDevices
+              .getUserMedia({ video: { facingMode: "user" } })
+              .then((stream) => {
+                cameraStreamRef.current = stream;
+                videoRef.current.srcObject = stream;
+                setCameraError(null);
+                if (tabSwitchWarning) {
+                  alert("Warning: Switching tabs is not allowed during the interview! Please stay on this tab.");
+                }
+              })
+              .catch((err) => {
+                console.error("Error accessing camera: ", err);
+                setCameraError(
+                  "Unable to access the camera. Please check your device settings or visit webcamtests.com."
+                );
+              });
+          }
         }
       }
     };
@@ -224,7 +208,7 @@ const speakText = (text, selectedAvatarIndex) => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       stopCameraStream();
     };
-  }, [stage, selectedAvatarIndex]);
+  }, [stage, selectedAvatarIndex, tabSwitchWarning]);
 
   const handleToggleCamera = () => {
     if (cameraActive) {
@@ -236,19 +220,14 @@ const speakText = (text, selectedAvatarIndex) => {
     }
   };
 
-  // Format seconds into mm:ss
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
+    const mins = Math.floor(seconds / 60).toString().padStart(2, "0");
     const secs = (seconds % 60).toString().padStart(2, "0");
     return `${mins}:${secs}`;
   };
 
-  // Countdown timer effect: when in chat stage, count down every second.
   useEffect(() => {
     if (stage === "chat") {
-      // Set remainingTime if not already set.
       if (remainingTime === 0 && testDuration) {
         setRemainingTime(testDuration * 60);
       }
@@ -269,42 +248,27 @@ const speakText = (text, selectedAvatarIndex) => {
   const handleStartInterview = () => {
     if (selectedAvatarIndex !== null && testDuration !== null) {
       setStage("chat");
-      // Timer is handled in the countdown useEffect
     }
   };
-
-  // Clear timer on unmount
-  useEffect(() => {
-    return () => {
-      // No need to clear manually because our interval cleanup does it.
-    };
-  }, []);
 
   useEffect(() => {
     if (stage === "chat" && selectedAvatarIndex !== null) {
       const chosenAvatar = avatars[selectedAvatarIndex];
-  
-      // Greeting message
       const greetingText = "Hello! Let's start the Interview.";
       const greetingMessage = {
         sender: "bot",
         text: greetingText,
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
-  
-      // Set greeting message
       setMessages([greetingMessage]);
-  
-      // Play voice & video animation for selected avatar
       speakText(greetingText, selectedAvatarIndex);
-  
-      // Delay before fetching first question
+
       setTimeout(() => {
         const formData = new FormData();
         formData.append("job_role", role);
         formData.append("job_description", jobDescription);
         formData.append("level", chosenAvatar.description);
-  
+
         fetch(`${jdUrl}/start_interview`, {
           method: "POST",
           body: formData,
@@ -328,10 +292,7 @@ const speakText = (text, selectedAvatarIndex) => {
                 text: result.question,
                 time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
               };
-  
               setMessages((prev) => [...prev, botMessage]);
-  
-              // Speak first question with the selected avatar's voice
               speakText(botMessage.text, selectedAvatarIndex);
             }
           })
@@ -346,23 +307,21 @@ const speakText = (text, selectedAvatarIndex) => {
               },
             ]);
           });
-      }, 3000); // 3-second delay after greeting message
+      }, 3000);
     }
   }, [stage, selectedAvatarIndex, role, jobDescription]);
-  
-
 
   const handleSendMessage = async () => {
     if (!userInput.trim()) return;
-  
+
     const userMessage = {
       sender: "user",
       text: userInput,
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
-  
+
     setMessages((prev) => [...prev, userMessage]);
-  
+
     try {
       const response = await fetch(`${jdUrl}/next_question`, {
         method: "POST",
@@ -374,9 +333,9 @@ const speakText = (text, selectedAvatarIndex) => {
           user_answer: userInput,
         }),
       });
-  
+
       const data = await response.json();
-  
+
       if (data.error) {
         console.error("Error from backend:", data.error);
         setMessages((prev) => [
@@ -393,7 +352,6 @@ const speakText = (text, selectedAvatarIndex) => {
           text: data.question,
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         };
-  
         setMessages((prev) => [...prev, botMessage]);
         speakText(botMessage.text, selectedAvatarIndex);
       }
@@ -408,10 +366,9 @@ const speakText = (text, selectedAvatarIndex) => {
         },
       ]);
     }
-  
+
     setUserInput("");
   };
-  
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -438,18 +395,12 @@ const speakText = (text, selectedAvatarIndex) => {
     setIsCodeMode((prev) => !prev);
   };
 
-  const handleMicClick = () => {
-    alert("Mic button clicked (placeholder). Integrate speech recognition here!");
-  };
-
-  // Handler for the End Test button
   const handleEndTest = () => {
     stopCameraStream();
     if (window.confirm("Your test is finished. Click OK to view your results.")) {
       navigate("/results");
     }
   };
-  
 
   const renderAvatarSelection = () => (
     <div className="w-full flex flex-col items-center justify-center p-4">
@@ -512,23 +463,32 @@ const speakText = (text, selectedAvatarIndex) => {
     const chosenAvatar = selectedAvatarIndex !== null ? avatars[selectedAvatarIndex] : null;
     return (
       <div className="w-full relative flex flex-col md:flex-row min-h-[700px]">
-        {/* Countdown Timer at top right */}
+        {/* Warning Overlay */}
+        {tabSwitchWarning && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg">
+              <p className="text-red-600 font-semibold text-lg">
+                Warning: Do not switch tabs during the interview!
+              </p>
+              <button
+                onClick={() => setTabSwitchWarning(false)}
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        )}
         <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded shadow-md text-gray-800 font-mono">
           {formatTime(remainingTime)}
         </div>
         <div className="md:w-1/5 flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200">
           <div className="rounded-full w-32 h-32 mb-4 overflow-hidden bg-gray-200 shadow-lg">
             {chosenAvatar && (
-               <>
-               {/* <img src={chosenAvatar.img} alt={chosenAvatar.name} className="w-full h-full object-cover" /> */}
-               
-               {/* Play the selected avatar's unique video */}
-                {/* Persistent Animated Video for Selected Avatar */}
-                <video ref={avatarVideoRef} loop muted className="w-32 h-32 rounded-xl shadow-lg">
-                  <source src={avatars[selectedAvatarIndex]?.video} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
-             </>
+              <video ref={avatarVideoRef} loop muted className="w-32 h-32 rounded-xl shadow-lg">
+                <source src={avatars[selectedAvatarIndex]?.video} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
             )}
           </div>
           {chosenAvatar && (
@@ -537,7 +497,6 @@ const speakText = (text, selectedAvatarIndex) => {
               <p className="text-sm text-gray-500 mb-4 text-center">{chosenAvatar.description}</p>
             </>
           )}
-          {/* Live video preview */}
           <div className="mt-4">
             <video ref={videoRef} autoPlay muted playsInline className="w-64 h-48 object-cover rounded-xl shadow-lg border" />
             {cameraError && <div className="mt-2 text-sm text-red-500">{cameraError}</div>}
@@ -549,8 +508,6 @@ const speakText = (text, selectedAvatarIndex) => {
             </button>
           </div>
         </div>
-
-        {/* Right panel (Chat) */}
         <div className="md:w-4/5 flex flex-col p-6">
           <div className="flex items-center mb-3">
             {chosenAvatar && (
@@ -578,7 +535,7 @@ const speakText = (text, selectedAvatarIndex) => {
             <div ref={messagesEndRef} />
           </div>
           <div className="flex items-center space-x-2">
-          <button
+            <button
               className={`p-2 rounded-full focus:outline-none transition-transform transform ${
                 isListening ? "bg-red-500 text-white animate-pulse" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
@@ -603,7 +560,6 @@ const speakText = (text, selectedAvatarIndex) => {
               onChange={(e) => setUserInput(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-            {/* camera button */}
             <button onClick={handleToggleCamera} className="px-3 py-2 bg-gray-200 rounded-full hover:bg-gray-300 focus:outline-none transition transform duration-200 ease-in-out">
               {cameraActive ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-green-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
@@ -630,8 +586,7 @@ const speakText = (text, selectedAvatarIndex) => {
           </div>
         </div>
       </div>
-    
-  );
+    );
   };
 
   return (

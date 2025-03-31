@@ -1,5 +1,3 @@
-
-
 // JobRoleBasedInterview.jsx
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -27,6 +25,8 @@ const JobRoleBasedInterview = () => {
   const [userInput, setUserInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [question, setQuestion] = useState("");
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [showTabWarning, setShowTabWarning] = useState(false);
 
   const {
     interviewType = "",
@@ -183,33 +183,46 @@ const JobRoleBasedInterview = () => {
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopCameraStream();
-      } else if (
-        stage === "chat" &&
-        selectedAvatarIndex !== null &&
-        cameraActiveRef.current &&
-        videoRef.current
-      ) {
-        navigator.mediaDevices
-          .getUserMedia({ video: { facingMode: "user" } })
-          .then((stream) => {
-            cameraStreamRef.current = stream;
-            videoRef.current.srcObject = stream;
-            setCameraError(null);
-            alert("Please do not switch window during the interview!");
-          })
-          .catch((err) => {
-            console.error("Error accessing camera: ", err);
-            setCameraError(
-              "Unable to access the camera. Please check your device settings or visit webcamtests.com."
-            );
-          });
+      if (stage === "chat") {
+        if (document.hidden) {
+          stopCameraStream();
+          setTabSwitchCount(prev => prev + 1);
+          setShowTabWarning(true);
+        } else if (
+          selectedAvatarIndex !== null &&
+          cameraActiveRef.current &&
+          videoRef.current
+        ) {
+          navigator.mediaDevices
+            .getUserMedia({ video: { facingMode: "user" } })
+            .then((stream) => {
+              cameraStreamRef.current = stream;
+              videoRef.current.srcObject = stream;
+              setCameraError(null);
+            })
+            .catch((err) => {
+              console.error("Error accessing camera: ", err);
+              setCameraError(
+                "Unable to access the camera. Please check your device settings or visit webcamtests.com."
+              );
+            });
+        }
       }
     };
+
+    const handleBeforeUnload = (e) => {
+      if (stage === "chat") {
+        e.preventDefault();
+        e.returnValue = "Are you sure you want to leave? Your interview progress will be lost.";
+      }
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
       stopCameraStream();
     };
   }, [stage, selectedAvatarIndex]);
@@ -485,6 +498,23 @@ const JobRoleBasedInterview = () => {
 
     return (
       <div className="w-full relative flex flex-col md:flex-row min-h-[700px] ">
+        {showTabWarning && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-xl">
+              <h2 className="text-xl font-bold text-red-600 mb-4">Warning: Tab Switching Detected</h2>
+              <p className="mb-4">
+                You have switched tabs {tabSwitchCount} time{tabSwitchCount !== 1 ? 's' : ''}. 
+                Please remain on this tab during the interview. Multiple tab switches may affect your evaluation.
+              </p>
+              <button
+                onClick={() => setShowTabWarning(false)}
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        )}
         <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded shadow-md text-gray-800 font-mono">
           {formatTime(remainingTime)}
         </div>
