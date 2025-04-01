@@ -171,7 +171,7 @@ export default function AiRecruiterChat() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col md:flex-row  min-h-[100vh] bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300"
+      className="flex flex-col md:flex-row  min-h-[90vh] bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300"
     >
       {/* Sidebar */}
       <motion.div 

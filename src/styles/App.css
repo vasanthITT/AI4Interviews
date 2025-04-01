@@ -1,20 +1,24 @@
-/* App.css */
 .main-layout {
-    display: flex; /* Use flexbox for layout */
-    min-height: 100vh; /* Ensure it takes full height */
-  }
+  display: flex;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
   
+  transition: margin-left 0.3s ease;
+}
+
+.content.collapsed {
+  
+}
+
+@media (max-width: 768px) {
   .content {
-    flex: 1; /* Allow content to take remaining space */
-    padding: 10px; /* Optional: Add padding inside content */
-    margin-left: 100px; /* Add gap between sidebar and content */
-    transition: margin-left 0.3s ease; /* Smooth transition when sidebar collapses */
+    margin-left: 0;
   }
-  
-  /* Adjust content margin when sidebar is collapsed */
   .content.collapsed {
-    margin-left: 10px; /* Smaller gap when sidebar is collapsed */
+    margin-left: 0;
   }
-  
-  /* Optional: Ensure sidebar has a fixed width */
-  
+}

@@ -2,14 +2,14 @@
 /* Base Container */
 .profile-container {
     min-height: 100vh;
-    margin-left: 70px;
+    
     background: linear-gradient(to bottom right, #9ad0f5, #b89cf1, #f1a7c5);
     padding: 1rem;
     transition: margin-left 0.3s ease-in-out;
 }
 
 .profile-container.expanded {
-    margin-left: 80px; /* Adjust when sidebar is collapsed */
+    /* Adjust when sidebar is collapsed */
 }
 
 /* Loading */
@@ -23,7 +23,7 @@
 
 /* Profile Content */
 .profile-content {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 1rem;
 }

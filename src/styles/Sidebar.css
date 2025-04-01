@@ -1,17 +1,15 @@
-/* Sidebar.css */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
-  /* White background instead of gradient */
   background: #ffffff;
   color: #333333;
   transition: all 0.3s ease-in-out;
   box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  
   overflow-y: auto;
-  /* Hide scrollbar for different browsers */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
 }
@@ -22,10 +20,21 @@
 
 .sidebar.expanded {
   width: 210px;
+  margin-top: 20px;
 }
 
 .sidebar.collapsed {
-  width: 70px;
+  width: 90px;
+  margin-top: 20px;
+}
+
+.sidebar.mobile-active {
+  width: 80%; /* Full width on mobile when active */
+  left: 0;
+}
+
+.sidebar.mobile-hidden {
+  left: -100%; /* Hide sidebar off-screen on mobile */
 }
 
 .sidebar-header {
@@ -36,7 +45,6 @@
 }
 
 .sidebar-title {
-  
   padding: 1rem 0;
   font-size: 1.25rem;
   font-weight: 600;
@@ -52,10 +60,9 @@
 }
 
 .toggle-button {
-  position: absolute;
-  top: 1.25rem;
-  right: 1rem;
   background: transparent;
+  margin-top: 18px;
+  margin-left: 1px;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
@@ -64,6 +71,19 @@
 }
 
 .toggle-button:hover {
+  color: #666666;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #000000;
+  transition: color 0.2s;
+}
+
+.close-button:hover {
   color: #666666;
 }
 
@@ -152,7 +172,6 @@
 }
 
 .sidebar-logo {
-  position: absolute;
   max-width: 120px;
   opacity: 0.25;
   transition: max-width 0.3s ease;
@@ -164,12 +183,18 @@
 
 /* Media Queries for Responsiveness */
 @media (max-width: 768px) {
-  .sidebar.expanded {
-    width: 240px;
+  .sidebar {
+    width: 0; /* Hidden by default on mobile */
+    display: none; /* Ensure it’s not visible unless toggled */
   }
   
-  .sidebar.collapsed {
-    width: 60px;
+  .sidebar.mobile-active {
+    width: 80%;
+    display: block; /* Show when active */
+  }
+  
+  .sidebar.mobile-hidden {
+    display: none; /* Hide when not active */
   }
   
   .menu-link {
@@ -180,28 +205,38 @@
     font-size: 1.125rem;
   }
   
-  .sidebar.collapsed .sidebar-title {
-    font-size: 1.25rem;
+  .toggle-button {
+    display: none; /* Hide toggle button on mobile */
   }
 }
 
+@media (min-width: 769px) {
+  .sidebar {
+    display: block; /* Ensure sidebar is visible on tablet/PC */
+  }
+  
+  .sidebar.mobile-active, .sidebar.mobile-hidden {
+    display: block; /* Override mobile classes on larger screens */
+    left: 0; /* Ensure it stays visible */
+  }
+  
+  .close-button {
+    display: none; /* Hide close button on tablet/PC */
+  }
+}
 
-/* Add this to handle mobile behavior */
 @media (max-width: 576px) {
-  .sidebar.expanded {
-    width: 40%;
-    z-index: 1001;
+  .sidebar.mobile-active {
+    width: 15%;
+    margin-top: 10px; /* Slightly wider on very small screens */
   }
-
-  .sidebar.collapsed {
-    width: 70px;
-    position: fixed;
-    
-  }
-
+  
   .menu-link {
     font-size: 0.9rem;
   }
+  .close-button {
+    display: none; /* Hide close button on tablet/PC */
+  }
 }
 
-/* Dark mode support */
+/* Dark mode support (optional) */
