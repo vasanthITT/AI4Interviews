@@ -4,17 +4,16 @@
 
 
 
-/* Custom styles for react-toastify */
 .custom-toast-container .Toastify__toast {
-  @apply bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 text-white rounded-lg shadow-lg;
+  @apply bg-gradient-to-br from-purple-400 via-purple-600 to-purple-950  text-white rounded-lg shadow-lg;
 }
 
 .custom-toast-container .Toastify__toast--success {
-  @apply bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 text-white;
+  @apply bg-gradient-to-br from-purple-400 via-purple-600 to-purple-950 text-white;
 }
 
 .custom-toast-container .Toastify__toast--error {
-  @apply bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 text-white;
+  @apply bg-gradient-to-br from-purple-400 via-purple-600 to-purple-950 text-white;
 }
 
 .custom-toast-container .Toastify__progress-bar {
