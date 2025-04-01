@@ -20,11 +20,12 @@
   import TutorForm from "./form/TutorForm";
   import TutorList from "./form/TutorList";
   import SpeechToText from "./components/Speechtotext";
-  import AuthForm from "./components/AuthForm"; 
+
   
   import PracticeCodingInterview from "./pages/Interview/PracticeCodingInterview";
   import PrivateRoute from "./services/PrivateRoute";
   import ProfilePage from "./pages/Profile/ProfilePage";
+import AuthPage from "./components/AuthPage.js"
 
   const App = () => {
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -33,21 +34,22 @@
       <Router>
         <Routes>
           {/* Public routes */}
-          <Route path="/login" element={<AuthForm />} />
+          <Route path="/login" element={<AuthPage />} />
           {/* You can add a separate /register route if needed */}
-
+          
           {/* Protected Routes */}
           <Route
             path="/*"
             element={
               <PrivateRoute>
                 <Navbar/>
-                <div className="main-layout">
+                <div className="main-layout ">
                   <Sidebar toggleSidebar={setIsSidebarCollapsed} />
                   <div className={`content ${isSidebarCollapsed ? "collapsed" : ""}`}>
                     
                     <Routes>
                       <Route path="/results" element={<ProfilePage/>} />
+                      
                       <Route path="/" element={<Home />} />
                       <Route path="/ai-interview-test" element={<InterviewTest />} />
                       <Route path="/interview-practice" element={<PracticeTest />} />

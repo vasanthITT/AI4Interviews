@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+
+
+/* Custom styles for react-toastify */
+.custom-toast-container .Toastify__toast {
+  @apply bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 text-white rounded-lg shadow-lg;
+}
+
+.custom-toast-container .Toastify__toast--success {
+  @apply bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 text-white;
+}
+
+.custom-toast-container .Toastify__toast--error {
+  @apply bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 text-white;
+}
+
+.custom-toast-container .Toastify__progress-bar {
+  @apply bg-white/50;
+}
+
+.custom-toast-container .Toastify__close-button {
+  @apply text-white hover:text-gray-200;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

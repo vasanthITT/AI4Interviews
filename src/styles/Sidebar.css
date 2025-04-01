@@ -21,11 +21,11 @@
 }
 
 .sidebar.expanded {
-  width: 260px;
+  width: 210px;
 }
 
 .sidebar.collapsed {
-  width: 80px;
+  width: 70px;
 }
 
 .sidebar-header {
@@ -36,10 +36,11 @@
 }
 
 .sidebar-title {
-  margin-left: 0.75rem;
+  
   padding: 1rem 0;
   font-size: 1.25rem;
   font-weight: 600;
+  margin-top: 15px;
   color: #000000;
   letter-spacing: 0.05rem;
 }
@@ -184,25 +185,22 @@
   }
 }
 
+
+/* Add this to handle mobile behavior */
 @media (max-width: 576px) {
   .sidebar.expanded {
-    width: 220px;
+    width: 40%;
+    z-index: 1001;
   }
-  
+
   .sidebar.collapsed {
-    width: 50px;
+    width: 70px;
+    position: fixed;
+    
   }
-  
-  .sidebar-logo {
-    max-width: 100px;
-  }
-  
-  .sidebar.collapsed .sidebar-logo {
-    max-width: 50px;
-  }
-  
-  .toggle-button {
-    font-size: 1.25rem;
+
+  .menu-link {
+    font-size: 0.9rem;
   }
 }
 
