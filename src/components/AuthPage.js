@@ -1,4 +1,3 @@
-// src/components/AuthPage.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -155,7 +154,22 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 flex flex-col items-center justify-center p-4">
+      {/* Catchy Header Section */}
+      <motion.div
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-center mb-8"
+      >
+        
+        <h1 className="text-4xl md:text-5xl font-extrabold text-white drop-shadow-lg mb-4">
+        Ace Your Interviews with AI-Powered Precision
+        </h1>
+      
+       
+      </motion.div>
+
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -197,7 +211,7 @@ const AuthPage = () => {
             {/* Form Container */}
             <div className={`${isLogin ? 'w-full md:w-1/2 p-8' : 'w-full p-8'}`}>
               <motion.h2 variants={itemVariants} className="text-3xl font-bold text-center mb-6 text-gray-800">
-                {isLogin ? 'Welcome Back' : 'Create Account'}
+                {isLogin ? 'Sign In' : 'Create Account'}
               </motion.h2>
 
               {message && (

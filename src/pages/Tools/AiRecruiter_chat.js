@@ -10,7 +10,7 @@ import {
 import { FaIbm, FaMicrosoft } from "react-icons/fa";
 import { FaRobot } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-
+import './AiRecruiter_chat.css'
 export default function AiRecruiterChat() {
   const [selectedCompany, setSelectedCompany] = useState("Apple");
   const [messages, setMessages] = useState([
@@ -104,121 +104,75 @@ export default function AiRecruiterChat() {
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { duration: 0.5 }
-    },
-    exit: { 
-      opacity: 0,
-      transition: { duration: 0.3 }
-    }
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+    exit: { opacity: 0, transition: { duration: 0.3 } },
   };
 
   const sidebarVariants = {
-    hidden: { x: -50, opacity: 0 },
-    visible: { 
-      x: 0,
-      opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 100,
-        duration: 0.5
-      }
-    }
+    hidden: { x: -250, opacity: 0 },
+    visible: { x: 0, opacity: 1, transition: { type: "spring", stiffness: 100, duration: 0.5 } },
   };
 
   const chatContainerVariants = {
     hidden: { x: 50, opacity: 0 },
-    visible: { 
-      x: 0,
-      opacity: 1,
-      transition: { 
-        type: "spring", 
-        stiffness: 100,
-        duration: 0.5,
-        delay: 0.2
-      }
-    }
+    visible: { x: 0, opacity: 1, transition: { type: "spring", stiffness: 100, duration: 0.5, delay: 0.2 } },
   };
 
   const buttonVariants = {
     initial: { scale: 1 },
-    hover: { 
-      scale: 1.05,
-      transition: { duration: 0.2 }
-    },
-    tap: { 
-      scale: 0.95,
-      transition: { duration: 0.1 }
-    }
+    hover: { scale: 1.05, transition: { duration: 0.2 } },
+    tap: { scale: 0.95, transition: { duration: 0.1 } },
   };
 
   const messageVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1,
-      y: 0,
-      transition: { 
-        type: "spring", 
-        stiffness: 100,
-        duration: 0.3
-      }
-    }
+    visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100, duration: 0.3 } },
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col md:flex-row  min-h-[90vh] bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300"
+      className="flex flex-col md:flex-row min-h-[90vh] bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 p-4"
     >
       {/* Sidebar */}
-      <motion.div 
+      <motion.div
         variants={sidebarVariants}
-        className="w-full md:w-1/4 bg-white/90 backdrop-blur-sm shadow-lg p-4 h-auto md:h-[87vh] overflow-y-auto rounded-lg md:rounded-r-none m-4 md:ml-4 md:my-4 md:mr-0"
+        className="w-full md:w-64 lg:w-72 bg-white/90 backdrop-blur-sm shadow-lg p-4 h-auto md:h-[87vh] overflow-y-auto rounded-lg md:rounded-r-none mb-4 md:mb-0 md:mr-4"
       >
-        <motion.h2 
+        <motion.h2
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
           className="text-xl font-bold mb-4 text-gray-800"
         >
-          Tech Recruiters
+          Recruiters
         </motion.h2>
         <motion.div
           variants={{
             hidden: { opacity: 0 },
-            visible: { 
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.3
-              }
-            }
+            visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
           }}
         >
-          {companies.map(({ name, icon }, index) => (
+          {companies.map(({ name, icon }) => (
             <motion.button
               key={name}
               variants={{
                 hidden: { opacity: 0, x: -20 },
-                visible: { opacity: 1, x: 0 }
+                visible: { opacity: 1, x: 0 },
               }}
               whileHover="hover"
               whileTap="tap"
               initial="initial"
-              className={`flex items-center w-full text-left p-3 rounded-lg ${
-                selectedCompany === name 
-                  ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md" 
+              className={`flex items-center w-full text-left p-2 rounded-lg ${
+                selectedCompany === name
+                  ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md"
                   : "bg-white hover:bg-gray-100 text-gray-800 border border-gray-200"
               } mb-2 transition-all duration-300`}
               onClick={() => handleCompanyChange(name)}
             >
-              <motion.span 
-                className="mr-3 text-xl"
-                variants={buttonVariants}
-              >
+              <motion.span className="mr-3 text-xl" variants={buttonVariants}>
                 {icon}
               </motion.span>
               {name}
@@ -228,19 +182,20 @@ export default function AiRecruiterChat() {
       </motion.div>
 
       {/* Chat Section */}
-      <motion.div 
+      <motion.div
         variants={chatContainerVariants}
-        className="w-full md:w-3/4 flex flex-col p-4 md:p-6 h-auto md:h-[87vh] md:mr-4 md:my-4"
+        className="flex-1 flex flex-col p-4 bg-white/90 backdrop-blur-sm shadow-lg rounded-lg h-auto md:h-[87vh] overflow-hidden"
       >
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="flex-1 bg-white/90 backdrop-blur-sm shadow-lg rounded-lg p-4 overflow-y-auto max-h-[65vh]"
+          className="flex-1 bg-white rounded-lg p-4 overflow-y-auto"
+          style={{ maxHeight: "calc(87vh - 80px)" }} /* Adjust based on input height */
         >
           <AnimatePresence initial={false}>
             {messages.map((msg, index) => (
-              <motion.div 
+              <motion.div
                 key={index}
                 initial="hidden"
                 animate="visible"
@@ -252,25 +207,21 @@ export default function AiRecruiterChat() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.3 }}
-                    className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white mr-2"
+                    className="flex items-center justify-center h-8 w-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white mr-2"
                   >
                     <FaRobot className="text-white" />
                   </motion.div>
                 )}
-                <motion.div 
-                  className={`p-3 rounded-lg max-w-lg relative ${
-                    msg.role === "user" 
-                      ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-md" 
-                      : "bg-white border border-gray-200 text-gray-800 shadow-sm"
+                <motion.div
+                  className={`p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-lg relative ${
+                    msg.role === "user"
+                      ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md"
+                      : "bg-gray-100 border border-gray-200 text-gray-800"
                   } transition-all duration-300`}
                   whileHover={{ scale: 1.01 }}
                 >
                   <pre className="whitespace-pre-wrap font-sans">{msg.content}</pre>
-                  {msg.role === "assistant" && (
-                    <span className="text-xs text-gray-500 absolute bottom-1 right-2">
-                      {msg.timestamp}
-                    </span>
-                  )}
+                 
                 </motion.div>
               </motion.div>
             ))}
@@ -278,23 +229,23 @@ export default function AiRecruiterChat() {
         </motion.div>
 
         {/* Input */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-          className="mt-4 flex"
+          className="mt-4 flex items-center"
         >
           <motion.input
             type="text"
-            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white/90 backdrop-blur-sm shadow-md"
+            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-md"
             placeholder="Ask a question..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === "Enter" && sendMessage()}
-            whileFocus={{ scale: 1.01, boxShadow: "0 0 8px rgba(139, 92, 246, 0.5)" }}
+            whileFocus={{ scale: 1.01, boxShadow: "0 0 8px rgba(99, 102, 241, 0.5)" }}
           />
           <motion.button
-            className="ml-2 p-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg shadow-md"
+            className="ml-2 p-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg shadow-md"
             onClick={sendMessage}
             variants={buttonVariants}
             whileHover="hover"

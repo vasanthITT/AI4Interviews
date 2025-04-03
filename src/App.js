@@ -1,10 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import Home from "./pages/Home";
 import InterviewTest from "./pages/Interview/InterviewTest";
-import "./styles/App.css";
 import PracticeTest from "./pages/Interview/PracticeTest";
 import Start_General_Interview from "./pages/Interview/Start_General_Interview";
 import JobDescriptionBasedInterview from "./pages/Interview/JobDescriptionBasedInterview";
@@ -23,13 +22,35 @@ import PracticeCodingInterview from "./pages/Interview/PracticeCodingInterview";
 import PrivateRoute from "./services/PrivateRoute";
 import ProfilePage from "./pages/Profile/ProfilePage";
 import AuthPage from "./components/AuthPage.js";
+import "./styles/App.css";
 
 const App = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  // Set initial sidebar state based on screen size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsSidebarCollapsed(true);
+      } else {
+        setIsSidebarCollapsed(false);
+      }
+      // Always close mobile menu on resize
+      setIsMobileOpen(false);
+    };
+    
+    handleResize(); // Set initial state
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const toggleMobileSidebar = () => {
     setIsMobileOpen(!isMobileOpen);
+  };
+  
+  const toggleSidebar = (collapsed) => {
+    setIsSidebarCollapsed(collapsed);
   };
 
   return (
@@ -43,9 +64,10 @@ const App = () => {
               <Navbar toggleMobileSidebar={toggleMobileSidebar} />
               <div className="main-layout">
                 <Sidebar
-                  toggleSidebar={setIsSidebarCollapsed}
+                  toggleSidebar={toggleSidebar}
                   isMobileOpen={isMobileOpen}
                   setIsMobileOpen={setIsMobileOpen}
+                  isCollapsed={isSidebarCollapsed}
                 />
                 <div className={`content ${isSidebarCollapsed ? "collapsed" : ""}`}>
                   <Routes>
