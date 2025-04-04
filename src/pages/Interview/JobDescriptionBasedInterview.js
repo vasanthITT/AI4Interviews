@@ -8,14 +8,14 @@ const JobDescriptionBasedInterview = () => {
   const navigate = useNavigate();
   const { role = "Software Engineer", jobDescription = "" } = location.state || {};
 
-  console.log({ role, jobDescription });
+  
 
   // Refs for camera stream, video element, messages end, and timer
   const cameraStreamRef = useRef(null);
   const videoRef = useRef(null);
   const messagesEndRef = useRef(null);
   const avatarVideoRef = useRef(null);
-
+  const [isCodeModalOpen, setIsCodeModalOpen] = useState(false);
   // State declarations
   const [cameraError, setCameraError] = useState(null);
   const [cameraActive, setCameraActive] = useState(false);
@@ -401,206 +401,229 @@ const JobDescriptionBasedInterview = () => {
       navigate("/results");
     }
   };
-
-  const renderAvatarSelection = () => (
-    <div className="w-full flex flex-col items-center justify-center p-4">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
-        Please choose your avatar and level of complexity
-      </h1>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 mb-8">
-        {avatars.map((avatar, index) => (
-          <div
-            key={avatar.id}
-            className={`cursor-pointer flex flex-col items-center bg-white p-4 rounded-xl shadow-lg border transition-transform hover:scale-105 ${
-              selectedAvatarIndex === index ? "ring-4 ring-indigo-500" : ""
-            }`}
-            onClick={() => setSelectedAvatarIndex(index)}
-          >
-            <div className="rounded-full w-20 h-20 overflow-hidden mb-3">
-              <img src={avatar.img} alt={avatar.name} className="w-full h-full object-cover" />
+ 
+    const renderAvatarSelection = () => (
+      <div className="w-full flex flex-col items-center justify-center p-4 min-h-screen bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900 text-center">
+          Please choose your avatar and level of complexity
+        </h1>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 md:gap-8 mb-8 w-full max-w-6xl px-4">
+          {avatars.map((avatar, index) => (
+            <div
+              key={avatar.id}
+              className={`cursor-pointer flex flex-col items-center bg-white p-4 rounded-xl shadow-lg border transition-all duration-300 hover:scale-105 ${
+                selectedAvatarIndex === index 
+                  ? "border-2 border-indigo-500 text-white shadow-md " 
+                  : "hover:shadow-xl"
+              }`}
+              onClick={() => setSelectedAvatarIndex(index)}
+            >
+              <div className="rounded-full w-20 h-20 overflow-hidden mb-3">
+                <img 
+                  src={avatar.img} 
+                  alt={avatar.name} 
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-110" 
+                />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 text-center">{avatar.name}</h3>
+              <p className="text-sm text-gray-600 text-center mt-1">{avatar.description}</p>
             </div>
-            <h3 className="text-lg font-semibold text-gray-800">{avatar.name}</h3>
-            <p className="text-sm text-gray-600 text-center mt-1">{avatar.description}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4 text-gray-900">Please select test duration</h2>
-        <div className="flex space-x-4">
-          <button
-            onClick={() => setTestDuration(15)}
-            className={`px-4 py-2 rounded ${testDuration === 15 ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-800"}`}
-          >
-            15 mins
-          </button>
-          <button
-            onClick={() => setTestDuration(30)}
-            className={`px-4 py-2 rounded ${testDuration === 30 ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-800"}`}
-          >
-            30 mins
-          </button>
-          <button
-            onClick={() => setTestDuration(50)}
-            className={`px-4 py-2 rounded ${testDuration === 50 ? "bg-indigo-600 text-white" : "bg-gray-200 text-gray-800"}`}
-          >
-            50 mins
-          </button>
+          ))}
         </div>
+        <div className="mb-8 w-full max-w-md px-4">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900 text-center">Please select test duration</h2>
+          <div className="flex flex-wrap justify-center gap-4">
+            {[15, 30, 50].map((duration) => (
+              <button
+                key={duration}
+                onClick={() => setTestDuration(duration)}
+                className={`px-4 py-2 rounded-lg transition-all duration-200 w-24 ${
+                  testDuration === duration 
+                    ? "bg-indigo-600 text-white shadow-md scale-105" 
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}
+              >
+                {duration} mins
+              </button>
+            ))}
+          </div>
+        </div>
+        <button
+          onClick={handleStartInterview}
+          disabled={selectedAvatarIndex === null || testDuration === null}
+          className={`px-6 py-3 rounded-lg text-white font-semibold transition-all duration-200 ${
+            selectedAvatarIndex === null || testDuration === null 
+              ? "bg-gray-400 cursor-not-allowed" 
+              : "bg-indigo-600 hover:bg-indigo-700 hover:shadow-lg"
+          }`}
+        >
+          Get started with Interview
+        </button>
       </div>
-      <button
-        onClick={handleStartInterview}
-        disabled={selectedAvatarIndex === null || testDuration === null}
-        className={`px-6 py-3 rounded-lg text-white font-semibold ${
-          selectedAvatarIndex === null || testDuration === null ? "bg-gray-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
-        }`}
-      >
-        Get started with Interview
-      </button>
-    </div>
-  );
-
-  const renderChatInterface = () => {
-    const chosenAvatar = selectedAvatarIndex !== null ? avatars[selectedAvatarIndex] : null;
-    return (
-      <div className="w-full relative flex flex-col md:flex-row min-h-[700px]">
-        {/* Warning Overlay */}
-        {tabSwitchWarning && (
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <p className="text-red-600 font-semibold text-lg">
-                Warning: Do not switch tabs during the interview!
+    );
+  
+    const renderChatInterface = () => {
+      const chosenAvatar = selectedAvatarIndex !== null ? avatars[selectedAvatarIndex] : null;
+      return (
+        <div className="w-full relative flex flex-col min-h-screen bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300">
+          {/* Warning Overlay */}
+          {tabSwitchWarning && (
+            <div className="absolute inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-2xl max-w-md w-full border-l-4 border-purple-300 transform transition-all">
+              <div className="flex items-center mb-4">
+                <svg className="w-8 h-8 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <p className="text-red-600 dark:text-red-400 font-bold text-xl">
+                  Warning
+                </p>
+              </div>
+              <p className="text-gray-800 dark:text-gray-200 font-medium text-lg mb-6">
+                Do not switch tabs during the interview!
               </p>
               <button
                 onClick={() => setTabSwitchWarning(false)}
-                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                className="w-full py-3 px-4 bg-gradient-to-r from-purple-300 to-pink-300 text-white font-medium rounded-lg shadow-md hover:from-red-600 hover:to-red-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
               >
                 I Understand
               </button>
             </div>
           </div>
-        )}
-        <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded shadow-md text-gray-800 font-mono">
-          {formatTime(remainingTime)}
-        </div>
-        <div className="md:w-1/5 flex flex-col items-center justify-center p-8 border-b md:border-b-0 md:border-r border-gray-200">
-          <div className="rounded-full w-32 h-32 mb-4 overflow-hidden bg-gray-200 shadow-lg">
-            {chosenAvatar && (
-              <video ref={avatarVideoRef} loop muted className="w-32 h-32 rounded-xl shadow-lg">
-                <source src={avatars[selectedAvatarIndex]?.video} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-            )}
-          </div>
-          {chosenAvatar && (
-            <>
-              <p className="text-xl font-semibold mb-1 text-gray-800">{chosenAvatar.name}</p>
-              <p className="text-sm text-gray-500 mb-4 text-center">{chosenAvatar.description}</p>
-            </>
           )}
-          <div className="mt-4">
-            <video ref={videoRef} autoPlay muted playsInline className="w-64 h-48 object-cover rounded-xl shadow-lg border" />
-            {cameraError && <div className="mt-2 text-sm text-red-500">{cameraError}</div>}
-            <button
-              onClick={handleEndTest}
-              className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md"
-            >
-              End Test
-            </button>
-          </div>
-        </div>
-        <div className="md:w-4/5 flex flex-col p-6">
-          <div className="flex items-center mb-3">
-            {chosenAvatar && (
-              <div className="w-10 h-10 mr-2">
-                <img src={chosenAvatar.img} alt="Bot Avatar" className="rounded-full object-cover w-full h-full" />
-              </div>
-            )}
-            <h2 className="text-xl font-semibold text-gray-800">
-              {chosenAvatar ? `${chosenAvatar.name} Bot` : "Interview Bot"}
-            </h2>
-          </div>
-          <div className="h-[500px] overflow-y-auto border p-3 rounded-lg mb-4 bg-white shadow-md">
-            {messages.map((msg, idx) => (
-              <div key={idx} className={`mb-3 flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}>
-                <div
-                  className={`px-4 py-2 rounded-lg max-w-md text-sm ${
-                    msg.sender === "user" ? "bg-indigo-500 text-white" : "bg-gray-200 text-gray-800"
-                  } whitespace-pre-wrap`}
+          {isCodeModalOpen && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+              <h2 className="text-xl font-semibold mb-4 text-gray-900">Code Editor</h2>
+              <textarea
+                rows={10}
+                className="w-full border rounded-lg px-3 py-2 focus:outline-none shadow-sm resize-none overflow-y-auto"
+                placeholder="Write your code here..."
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+              />
+              <div className="flex justify-end gap-2 mt-4">
+                <button
+                  onClick={() => setIsCodeModalOpen(false)}
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                 >
-                  {msg.sender === "bot" ? <BotMessage text={msg.text} delay={15} /> : msg.text}
-                </div>
-                <span className="text-xs text-gray-400 mt-1">{msg.time}</span>
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    handleSendMessage();
+                    setIsCodeModalOpen(false);
+                  }}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+                >
+                  Send Code
+                </button>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <button
-              className={`p-2 rounded-full focus:outline-none transition-transform transform ${
-                isListening ? "bg-red-500 text-white animate-pulse" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-              onClick={handleStartSpeechRecognition}
-              title={isListening ? "Listening..." : "Click to Speak"}
-            >
-              {isListening ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v10m0 0c1.657 0 3-1.343 3-3V3a3 3 0 10-6 0v5c0 1.657 1.343 3 3 3zm0 0c3.314 0 6-2.686 6-6m-6 6v4m0 0H9m3 0h3" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 1v10m0 0c1.657 0 3-1.343 3-3V3a3 3 0 10-6 0v5c0 1.657 1.343 3 3 3zm0 0c3.314 0 6-2.686 6-6m-6 6v4m0 0H9m3 0h3" />
-                </svg>
+        )}
+          <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded shadow-md text-gray-800 font-mono">
+            {formatTime(remainingTime)}
+          </div>
+          <div className="flex flex-col md:flex-row flex-1 p-4 md:p-6 gap-4 md:gap-6 max-w-7xl mx-auto w-full">
+            <div className="md:w-1/4 flex flex-col items-center justify-center p-4 bg-white/80 rounded-xl shadow-lg">
+              <div className="rounded-full w-32 h-32 mb-4 overflow-hidden bg-gray-200 shadow-lg">
+                {chosenAvatar && (
+                  <video ref={avatarVideoRef} loop muted className="w-full h-full object-cover rounded-xl">
+                    <source src={avatars[selectedAvatarIndex]?.video} type="video/mp4" />
+                    Your browser does not support the video tag.
+                  </video>
+                )}
+              </div>
+              {chosenAvatar && (
+                <>
+                  <p className="text-xl font-semibold mb-1 text-gray-800 text-center">{chosenAvatar.name}</p>
+                  <p className="text-sm text-gray-500 mb-4 text-center">{chosenAvatar.description}</p>
+                </>
               )}
-            </button>
-            <textarea
-              rows={isCodeMode ? 10 : 1}
-              className={`flex-1 border rounded-lg px-3 py-2 focus:outline-none shadow-sm resize-none overflow-y-auto ${isCodeMode ? "max-h-64" : "max-h-24"}`}
-              placeholder="Type your message. (Enter=Send, Shift+Enter=New line)"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            <button onClick={handleToggleCamera} className="px-3 py-2 bg-gray-200 rounded-full hover:bg-gray-300 focus:outline-none transition transform duration-200 ease-in-out">
-              {cameraActive ? (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-green-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z" />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-red-500 transition-transform transform hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M4 6h8a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2zm0 0l16 16" />
-                </svg>
-              )}
-            </button>
-            <button
-              className={`p-2 rounded-full text-gray-700 focus:outline-none ${isCodeMode ? "bg-indigo-200 hover:bg-indigo-300" : "bg-gray-200 hover:bg-gray-300"}`}
-              title="Toggle code mode (expand the text area)"
-              onClick={handleToggleCodeMode}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 18l6-6-6-6M8 6l-6 6 6 6" />
+              <div className="mt-4 w-full">
+                <video ref={videoRef} autoPlay muted playsInline className="w-full max-w-xs h-48 object-cover rounded-xl shadow-lg border mx-auto" />
+                {cameraError && <div className="mt-2 text-sm text-red-500 text-center">{cameraError}</div>}
+                <button
+                  onClick={handleEndTest}
+                  className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-md w-full"
+                >
+                  End Test
+                </button>
+              </div>
+            </div>
+            <div className="md:w-3/4 flex flex-col p-4 bg-white/80 rounded-xl shadow-lg">
+              
+              <div className="flex-1 overflow-y-auto border p-3 rounded-lg mb-4 bg-white shadow-md">
+                {messages.map((msg, idx) => (
+                  <div key={idx} className={`mb-3 flex flex-col ${msg.sender === "user" ? "items-end" : "items-start"}`}>
+                    <div
+                      className={`px-4 py-2 rounded-lg max-w-md text-sm ${
+                        msg.sender === "user" ? "bg-indigo-500 text-white" : "bg-gray-200 text-gray-800"
+                      } whitespace-pre-wrap`}
+                    >
+                      {msg.sender === "bot" ? <BotMessage text={msg.text} delay={15} /> : msg.text}
+                    </div>
+                    <span className="text-xs text-gray-400 mt-1">{msg.time}</span>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-2">
+               
+                <textarea
+                  rows={isCodeMode ? 10 : 1}
+                  className={`flex-1 mt-4 border rounded-lg px-3 py-2 focus:outline-none shadow-sm resize-none overflow-y-auto ${isCodeMode ? "max-h-64" : "max-h-24"} w-full`}
+                  placeholder="Type your message. (Enter=Send, Shift+Enter=New line)"
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+                 <button
+                  className={`p-2 rounded-full transition-transform transform ${
+                    isListening ? "bg-red-500 text-white animate-pulse" : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                  onClick={handleStartSpeechRecognition}
+                  title={isListening ? "Listening..." : "Click to Speak"}
+                ><svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" />
               </svg>
-            </button>
-            <button className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 shadow-md" onClick={handleSendMessage}>
-              Send
-            </button>
+                  {/* SVG icons remain unchanged */}
+                </button>
+                <div className="flex gap-2">
+                  <button onClick={handleToggleCamera} className="px-3 py-2 bg-gray-200 rounded-full hover:bg-gray-300">
+                    {/* SVG icons remain unchanged */}
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M18 10.48V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-4.48l4 3.98v-11l-4 3.98zM16 18H4V6h12v12z" />
+                  </svg>
+                  </button>
+                  <button
+                    className={`p-2 rounded-full ${isCodeMode ? "bg-indigo-200 hover:bg-indigo-300" : "bg-gray-200 hover:bg-gray-300"}`}
+                    onClick={handleToggleCodeMode}
+                  >
+                    <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z" />
+                  </svg>
+                    {/* SVG icon remains unchanged */}
+                  </button>
+                  <button
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700"
+                  onClick={handleSendMessage}
+                >
+                  Send
+                </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      );
+    };
+  
+    return (
+      <div className="relative w-full min-h-screen bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 flex items-center justify-center">
+        {stage === "chooseAvatar" ? renderAvatarSelection() : renderChatInterface()}
       </div>
     );
   };
 
-  return (
-    <div className="relative w-full h-screen bg-gradient-to-r from-white to-blue-50 flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" />
-        <div className="absolute -bottom-32 right-0 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-32 left-20 w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" />
-      </div>
-      <div className="relative z-10 w-full max-w-5xl p-4 md:p-8 bg-white/30 backdrop-blur-xl backdrop-saturate-150 rounded-3xl shadow-2xl border border-white/20">
-        {stage === "chooseAvatar" ? renderAvatarSelection() : renderChatInterface()}
-      </div>
-    </div>
-  );
-};
-
-export default JobDescriptionBasedInterview;
+  export default JobDescriptionBasedInterview;

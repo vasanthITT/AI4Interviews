@@ -10,7 +10,7 @@ import {
 import { FaIbm, FaMicrosoft } from "react-icons/fa";
 import { FaRobot } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import './AiRecruiter_chat.css'
+
 export default function AiRecruiterChat() {
   const [selectedCompany, setSelectedCompany] = useState("Apple");
   const [messages, setMessages] = useState([
@@ -134,12 +134,12 @@ export default function AiRecruiterChat() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="flex flex-col md:flex-row min-h-[90vh] bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 p-4"
+      className="flex flex-col md:flex-row min-h-[85vh] bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 p-4 pt-6" // Added pt-16 for navbar
     >
       {/* Sidebar */}
       <motion.div
         variants={sidebarVariants}
-        className="w-full md:w-64 lg:w-72 bg-white/90 backdrop-blur-sm shadow-lg p-4 h-auto md:h-[87vh] overflow-y-auto rounded-lg md:rounded-r-none mb-4 md:mb-0 md:mr-4"
+        className="w-full md:w-64 lg:w-72 bg-white/90 backdrop-blur-sm shadow-lg p-4 rounded-lg md:rounded-r-none mb-4 md:mb-0 md:mr-4 h-auto md:h-[87vh] overflow-y-auto"
       >
         <motion.h2
           initial={{ opacity: 0 }}
@@ -165,11 +165,11 @@ export default function AiRecruiterChat() {
               whileHover="hover"
               whileTap="tap"
               initial="initial"
-              className={`flex items-center w-full text-left p-2 rounded-lg ${
+              className={`flex items-center w-full text-left p-2 rounded-lg mb-2 transition-all duration-300 ${
                 selectedCompany === name
                   ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md"
                   : "bg-white hover:bg-gray-100 text-gray-800 border border-gray-200"
-              } mb-2 transition-all duration-300`}
+              }`}
               onClick={() => handleCompanyChange(name)}
             >
               <motion.span className="mr-3 text-xl" variants={buttonVariants}>
@@ -190,8 +190,7 @@ export default function AiRecruiterChat() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="flex-1 bg-white rounded-lg p-4 overflow-y-auto"
-          style={{ maxHeight: "calc(87vh - 80px)" }} /* Adjust based on input height */
+          className="flex-1 bg-white rounded-lg p-4 overflow-y-auto max-h-[calc(87vh-80px)]" // Adjusted for input height
         >
           <AnimatePresence initial={false}>
             {messages.map((msg, index) => (
@@ -213,7 +212,7 @@ export default function AiRecruiterChat() {
                   </motion.div>
                 )}
                 <motion.div
-                  className={`p-3 rounded-lg max-w-xs md:max-w-md lg:max-w-lg relative ${
+                  className={`p-3 rounded-lg max-w-[90%] sm:max-w-xs md:max-w-md lg:max-w-lg ${
                     msg.role === "user"
                       ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md"
                       : "bg-gray-100 border border-gray-200 text-gray-800"
@@ -221,7 +220,6 @@ export default function AiRecruiterChat() {
                   whileHover={{ scale: 1.01 }}
                 >
                   <pre className="whitespace-pre-wrap font-sans">{msg.content}</pre>
-                 
                 </motion.div>
               </motion.div>
             ))}
@@ -233,11 +231,11 @@ export default function AiRecruiterChat() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.5 }}
-          className="mt-4 flex items-center"
+          className="mt-4 flex items-center gap-2"
         >
           <motion.input
             type="text"
-            className="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-md"
+            className="flex-1 mt-4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-md"
             placeholder="Ask a question..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -245,7 +243,7 @@ export default function AiRecruiterChat() {
             whileFocus={{ scale: 1.01, boxShadow: "0 0 8px rgba(99, 102, 241, 0.5)" }}
           />
           <motion.button
-            className="ml-2 p-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg shadow-md"
+            className="p-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg shadow-md"
             onClick={sendMessage}
             variants={buttonVariants}
             whileHover="hover"

@@ -154,7 +154,7 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 flex flex-col items-center justify-center p-4">
+    <div className="min-h-[700px]  bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 flex flex-col items-center justify-center p-4">
       {/* Catchy Header Section */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
